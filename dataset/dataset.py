@@ -45,9 +45,8 @@ def generate_target_tensor(line):
     #create EOF 'letter'
     eof_tensor = torch.zeros(1, n_letters)
     eof_tensor[0][len(all_letters)-1] = 1
-    print(eof_tensor.shape)
-    print(target_tensor.shape)
-    target_tensor = torch.cat(target_tensor, eof_tensor)
+    eof_tensor = eof_tensor.unsqueeze(0)
+    target_tensor = torch.cat((target_tensor, eof_tensor), 0)
     return target_tensor
 
 def random_training_example():
