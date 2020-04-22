@@ -6,7 +6,7 @@ def generate_vocab(filename):
         unique_chars = set(all_text)
         unique_chars = sorted(list(unique_chars))
         unique_chars = ''.join(unique_chars)
-        return unique_chars, len(unique_chars), all_text
+        return unique_chars, len(unique_chars) + 1, all_text #add one to chars for EOS
 
 def generate_bars(all_text):
     bars = all_text.split('\n[')
@@ -36,6 +36,21 @@ def random_bar(text):
     # from the text, pull a random bar
     print('barrrr')
 
+def generate_input_tensor(line):
+    return line_to_tensor(line)
+
+def generate_target_tensor(line):
+    target_line = line[1:]
+    target_tensor = line_to_tensor(line)
+    target_tensor.append(n_letters - 1) # add EOS
+    return target_tensor
+
+def random_training_example():
+    line = generate_bar()
+    target_tensor = generate_target_tensor(line)
+    input_tensor = generate_input_tensor(line)
+    return input_tensor, target_tensor
+
+
 if __name__ == "__main__":
-    print(line_to_tensor("kanye west").shape)
-    print(generate_bar())
+    random_training_example()
