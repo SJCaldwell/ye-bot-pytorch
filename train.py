@@ -2,11 +2,11 @@ from comet_ml import Experiment
 import torch
 import torchvision
 from torch import nn, optim
-from dataset.dataset import random_training_example
+from dataset.dataset import random_training_example, n_letters
 from model.model import RNN
 import numpy as np
-experiment = Experiment(api_key="ueodw9bjrtM4LGohzeyY0zNLG",
-                        project_name="ye-bot-pytorch-rnn", workspace="sjcaldwell")
+#experiment = Experiment(api_key="ueodw9bjrtM4LGohzeyY0zNLG",
+#                        project_name="ye-bot-pytorch-rnn", workspace="sjcaldwell")
 
 # Set Seed
 np.random.seed(420)
@@ -21,7 +21,7 @@ HIDDEN_SIZE = 128
 crit = nn.NLLLoss()
 learning_rate = 5e-4
 
-model = RNN(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
+model = RNN(n_letters, HIDDEN_SIZE, n_letters)
 
 
 def train(input_line_tensor, target_line_tensor):

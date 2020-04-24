@@ -15,6 +15,8 @@ class RNN(nn.Module):
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x, h):
+        print(x.type())
+        print(h.type())
         input_combined = torch.cat((x, h), 1)
         hidden = self.i2h(input_combined)
         output = self.i2o(input_combined)
@@ -25,5 +27,6 @@ class RNN(nn.Module):
         return output, hidden
 
     def init_hidden(self):
-        return torch.zeros(1, self.hidden_size)
+        h = torch.zeros(1, self.hidden_size)
+        return h.long()
 

@@ -14,7 +14,7 @@ def generate_bars(all_text):
 
 def generate_bar(): return '[' + random.choice(bars)
 
-all_letters, n_letters, all_text  = generate_vocab('../data/all_merged.txt')
+all_letters, n_letters, all_text  = generate_vocab('data/all_merged.txt')
 bars = generate_bars(all_text)
 
 
@@ -53,6 +53,8 @@ def random_training_example():
     line = generate_bar()
     target_tensor = generate_target_tensor(line)
     input_tensor = generate_input_tensor(line)
+    # Make these long, for nn.NLLLoss
+    input_tensor, target_tensor = input_tensor.long(), target_tensor.long()
     return input_tensor, target_tensor
 
 
