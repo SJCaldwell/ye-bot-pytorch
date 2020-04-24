@@ -12,7 +12,7 @@ class RNN(nn.Module):
 
         self.dropout = nn.Dropout(p_dropout)
 
-        self.softmax == nn.LogSoftmax(dim=1)
+        self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x, h):
         input_combined = torch.cat((x, h), 1)
