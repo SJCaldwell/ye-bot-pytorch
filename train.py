@@ -1,18 +1,20 @@
-from comet_ml import Experiment
 import torch
-import torchvision
 from torch import nn, optim
 from dataset.dataset import random_training_example, n_letters
 from model.model import RNN
 import numpy as np
-#experiment = Experiment(api_key="ueodw9bjrtM4LGohzeyY0zNLG",
-#                        project_name="ye-bot-pytorch-rnn", workspace="sjcaldwell")
+import time
+import math
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from tqdm import tqdm
 
 # Set Seed
 np.random.seed(420)
 
-EPOCHS = 100_000
+EPOCHS = 100000
 print_every = 5000
+plot_every = 500
 
 INPUT_SIZE = 100
 OUTPUT_SIZE = 100
@@ -31,6 +33,12 @@ else:
     print('Using CPU')
 model.to(device)
 
+def time_since(since):
+    now = time.time()
+    s = now - since
+    m = math.floor(s/60)
+    s -= m * 60
+    return '%dm %ds' % (m,s)
 
 def train(input_line_tensor, target_line_tensor):
     target_line_tensor = target_line_tensor.to(device)
@@ -47,7 +55,11 @@ def train(input_line_tensor, target_line_tensor):
         output, hidden = model(input_line_tensor[i], hidden)
         target_line_tensor[i] = target_line_tensor[i].long()
         res = torch.max(target_line_tensor[i], 1)[1]
-        loss += crit(output, res[0])
+        ex_loss = crit(output, res[0])
+        if math.isnan(ex_loss):
+            print('got nan')
+            exit()
+        loss += ex_loss
     loss.backward()
     # i think cause we called zero_grad we gotta update the gradients ourselves?
     for p in model.parameters():
@@ -55,11 +67,20 @@ def train(input_line_tensor, target_line_tensor):
 
     return output, loss.item() / input_line_tensor.size(0)
 
+start = time.time()
 total_loss = 0
-for iter in range(1, EPOCHS):
+all_losses = []
+
+for iter in tqdm(range(1, EPOCHS)):
     output, loss = train(*random_training_example())
     total_loss += loss
 
     if iter % print_every == 0:
-        print(iter, loss)
+        print(' %s (%d %d%%) %.4f' % (time_since(start), iter, iter/EPOCHS * 100, loss))
 
+    if iter % plot_every == 0:
+        all_losses.append(total_loss/plot_every)
+        total_loss = 0
+
+plt.figure()
+plt.plot(all_losses)
