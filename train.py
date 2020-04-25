@@ -18,7 +18,7 @@ INPUT_SIZE = 100
 OUTPUT_SIZE = 100
 HIDDEN_SIZE = 128
 
-crit = nn.NLLLoss()
+crit = nn.CrossEntropyLoss()
 learning_rate = 5e-4
 
 model = RNN(n_letters, HIDDEN_SIZE, n_letters)
@@ -46,7 +46,8 @@ def train(input_line_tensor, target_line_tensor):
     for i in range(input_line_tensor.size(0)):
         output, hidden = model(input_line_tensor[i], hidden)
         target_line_tensor[i] = target_line_tensor[i].long()
-        loss += crit(output, torch.max(target_line_tensor[i],1)[1])
+        res = torch.max(target_line_tensor[i], 1)[1]
+        loss += crit(output, res[0])
     loss.backward()
     # i think cause we called zero_grad we gotta update the gradients ourselves?
     for p in model.parameters():
@@ -54,6 +55,7 @@ def train(input_line_tensor, target_line_tensor):
 
     return output, loss.item() / input_line_tensor.size(0)
 
+total_loss = 0
 for iter in range(1, EPOCHS):
     output, loss = train(*random_training_example())
     total_loss += loss
