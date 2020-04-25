@@ -23,10 +23,21 @@ learning_rate = 5e-4
 
 model = RNN(n_letters, HIDDEN_SIZE, n_letters)
 
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+    print('Using GPU')
+else:
+    device = torch.device('cpu')
+    print('Using CPU')
+model.to(device)
+
 
 def train(input_line_tensor, target_line_tensor):
+    target_line_tensor = target_line_tensor.to(device)
     target_line_tensor.unsqueeze_(-1)
     hidden = model.init_hidden()
+    hidden = hidden.to(device)
+    input_line_tensor = input_line_tensor.to(device)
 
     model.zero_grad() # gotta call for rnn
 
@@ -34,7 +45,8 @@ def train(input_line_tensor, target_line_tensor):
 
     for i in range(input_line_tensor.size(0)):
         output, hidden = model(input_line_tensor[i], hidden)
-        loss += crit(output, target_line_tensor[i])
+        target_line_tensor[i] = target_line_tensor[i].long()
+        loss += crit(output, torch.max(target_line_tensor[i],1)[1])
     loss.backward()
     # i think cause we called zero_grad we gotta update the gradients ourselves?
     for p in model.parameters():
